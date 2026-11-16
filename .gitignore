@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 # Angular
 .angular/
 dist/
+
+# prep-api credentials file (real user data, never commit)
+prep-api/App_Data/
