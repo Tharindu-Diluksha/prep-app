@@ -1,0 +1,12 @@
+<main class="auth-page">
+  @if (user(); as u) {
+    <h1>Welcome, {{ u.name }}</h1>
+    <p>You are signed in as {{ u.email }}.</p>
+  }
+
+  @if (errorMessage(); as message) {
+    <p class="notice error" role="alert">{{ message }}</p>
+  }
+
+  <button type="button" (click)="logout()" [disabled]="loggingOut()">Log out</button>
+</main>

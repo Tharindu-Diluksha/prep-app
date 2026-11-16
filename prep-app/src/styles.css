@@ -1,1 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Minimal shared layout for the login, signup and home pages. */
+.auth-page {
+  max-width: 22rem;
+  margin: 3rem auto;
+  font-family: system-ui, sans-serif;
+}
+
+.auth-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.auth-page input {
+  padding: 0.4rem;
+}
+
+.auth-page button {
+  margin-top: 0.8rem;
+  padding: 0.5rem;
+}
+
+.auth-page .field-error,
+.auth-page .notice.error {
+  color: #b00020;
+  margin: 0;
+}

@@ -1,0 +1,63 @@
+<main class="auth-page">
+  <h1>Sign up</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label for="signup-name">Name</label>
+    <input id="signup-name" type="text" name="name" formControlName="name" autocomplete="name" />
+    @if (form.controls.name.invalid && form.controls.name.touched) {
+      <p class="field-error">
+        @if (form.controls.name.hasError('maxlength')) {
+          Name must be at most {{ limits.NAME_MAX_LENGTH }} characters.
+        } @else {
+          Name is required.
+        }
+      </p>
+    }
+
+    <label for="signup-email">Email</label>
+    <input
+      id="signup-email"
+      type="email"
+      name="email"
+      formControlName="email"
+      autocomplete="email"
+    />
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <p class="field-error">
+        @if (form.controls.email.hasError('required')) {
+          Email is required.
+        } @else {
+          Enter a valid email address.
+        }
+      </p>
+    }
+
+    <label for="signup-password">Password</label>
+    <input
+      id="signup-password"
+      type="password"
+      name="password"
+      formControlName="password"
+      autocomplete="new-password"
+    />
+    @if (form.controls.password.invalid && form.controls.password.touched) {
+      <p class="field-error">
+        @if (form.controls.password.hasError('maxlength')) {
+          Password must be at most {{ limits.PASSWORD_MAX_LENGTH }} characters.
+        } @else {
+          Password must be at least {{ limits.PASSWORD_MIN_LENGTH }} characters.
+        }
+      </p>
+    }
+
+    @if (errorMessage(); as message) {
+      <p class="notice error" role="alert">{{ message }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Creating account…' : 'Sign up' }}
+    </button>
+  </form>
+
+  <p>Already have an account? <a routerLink="/login">Log in</a></p>
+</main>
