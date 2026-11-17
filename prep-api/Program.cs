@@ -31,7 +31,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<IProductService, ProductService>();
 
 // Auth: users in a JSON file (Auth:UsersFilePath), session in an HTTP-only cookie.
-builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
+// Invalid values (e.g. SessionHours <= 0, which would issue already-expired cookies) fail at startup.
+builder.Services.AddOptions<AuthOptions>()
+    .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
+    .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<AuthOptions>, AuthOptionsValidator>();
 
 // Singleton store: its lock must be shared by every request.
 builder.Services.AddSingleton<IUserStore, FileUserStore>();

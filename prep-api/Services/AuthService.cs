@@ -21,9 +21,12 @@ public interface IAuthService
 
 public sealed class AuthService(IUserStore store, IPasswordHasher<UserRecord> hasher) : IAuthService
 {
+    // Placeholder user for the dummy hash: PasswordHasher<T> ignores the user, but the contract is non-null.
+    private static readonly UserRecord NoUser = new("", "", "", "", DateTimeOffset.MinValue);
+
     // Verified against for unknown emails so both failure paths cost one hash verification.
     private static readonly Lazy<string> DummyHash = new(() =>
-        new PasswordHasher<UserRecord>().HashPassword(null!, Guid.NewGuid().ToString()));
+        new PasswordHasher<UserRecord>().HashPassword(NoUser, Guid.NewGuid().ToString()));
 
     public async Task<SignupResult> SignupAsync(SignupRequest request, CancellationToken ct = default)
     {
@@ -48,11 +51,26 @@ public sealed class AuthService(IUserStore store, IPasswordHasher<UserRecord> ha
         var user = await store.FindByEmailAsync(AuthValidator.NormalizeEmail(request.Email), ct);
         if (user is null)
         {
-            hasher.VerifyHashedPassword(null!, DummyHash.Value, request.Password);
+            hasher.VerifyHashedPassword(NoUser, DummyHash.Value, request.Password);
             return null;
         }
 
         var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-        return result == PasswordVerificationResult.Failed ? null : user;
+        if (result == PasswordVerificationResult.Failed)
+        {
+            return null;
+        }
+
+        if (result == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            // The stored hash uses an older format or iteration count: upgrade it now that we know the password.
+            var upgraded = user with { PasswordHash = hasher.HashPassword(user, request.Password) };
+            if (await store.TryUpdatePasswordHashAsync(user.Id, upgraded.PasswordHash, ct))
+            {
+                user = upgraded;
+            }
+        }
+
+        return user;
     }
 }

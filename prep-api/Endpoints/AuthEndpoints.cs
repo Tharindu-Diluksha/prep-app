@@ -8,6 +8,12 @@ using PrepApi.Services;
 
 namespace PrepApi.Endpoints;
 
+/// <summary>
+/// Cookie-session auth endpoints. Temporary, local-dev grade; known gaps (see prep-api/README.md):
+/// no CSRF/antiforgery tokens on the POSTs (SameSite=Lax + CORS allow-list only reduce the risk),
+/// no rate limiting or lockout on login, SameSite=Lax only works when SPA and API are same-site,
+/// and Data Protection keys are not persisted (sessions end on restart, fail across instances).
+/// </summary>
 public static class AuthEndpoints
 {
     public const string InvalidCredentialsMessage = "Invalid email or password.";
@@ -26,7 +32,7 @@ public static class AuthEndpoints
         return group;
     }
 
-    private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult>> SignupAsync(
+    private static async Task<Results<JsonHttpResult<UserResponse>, ValidationProblem, ProblemHttpResult>> SignupAsync(
         SignupRequest request, IAuthService auth, CancellationToken ct)
     {
         var errors = AuthValidator.ValidateSignup(request);
@@ -35,10 +41,11 @@ public static class AuthEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
-        // Signup never signs in: the user is sent to /login (AC-4).
+        // Signup never signs in: the user is sent to /login (AC-4). Hence 201 without a Location header:
+        // there is no resource the anonymous caller could fetch (/me needs a session).
         var result = await auth.SignupAsync(request, ct);
         return result.User is { } user
-            ? TypedResults.Created("/api/auth/me", user)
+            ? TypedResults.Json(user, statusCode: StatusCodes.Status201Created)
             : TypedResults.Problem(title: EmailTakenMessage, statusCode: StatusCodes.Status409Conflict);
     }
 
