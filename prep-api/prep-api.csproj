@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>prep_api</RootNamespace>
+    <!-- tests/ holds the test project; App_Data/ holds the users file (must never be built or published). -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**;App_Data/**</DefaultItemExcludes>
   </PropertyGroup>
 
 </Project>

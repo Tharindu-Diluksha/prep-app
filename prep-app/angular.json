@@ -30,6 +30,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -48,6 +54,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "e2e": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.e2e.ts"
+                }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"
@@ -60,6 +77,9 @@
             },
             "development": {
               "buildTarget": "prep-app:build:development"
+            },
+            "e2e": {
+              "buildTarget": "prep-app:build:e2e"
             }
           },
           "defaultConfiguration": "development"

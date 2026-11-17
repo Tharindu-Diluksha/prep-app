@@ -1,0 +1,49 @@
+<main class="auth-page">
+  <h1>Log in</h1>
+
+  @if (registered) {
+    <p class="notice success" role="status">Account created. You can now log in.</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label for="login-email">Email</label>
+    <input
+      id="login-email"
+      type="email"
+      name="email"
+      formControlName="email"
+      autocomplete="email"
+    />
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <p class="field-error">
+        @if (form.controls.email.hasError('required')) {
+          Email is required.
+        } @else {
+          Enter a valid email address.
+        }
+      </p>
+    }
+
+    <label for="login-password">Password</label>
+    <input
+      id="login-password"
+      type="password"
+      name="password"
+      formControlName="password"
+      autocomplete="current-password"
+    />
+    @if (form.controls.password.invalid && form.controls.password.touched) {
+      <p class="field-error">Password is required.</p>
+    }
+
+    @if (errorMessage(); as message) {
+      <p class="notice error" role="alert">{{ message }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Logging in…' : 'Log in' }}
+    </button>
+  </form>
+
+  <p>No account yet? <a routerLink="/signup">Sign up</a></p>
+</main>
